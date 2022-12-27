@@ -1,8 +1,55 @@
 #include <bits/stdc++.h>
-// fast_io
+// bitwise_xor_convolution
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
+const int N = 1 << 20;
+const int P = 998244353;
+struct mint {
+    int x;
+    constexpr mint(int x = 0) : x(x) {}
+    mint operator+(mint o) const { return x + o.x < P ? x + o.x : x + o.x - P; }
+    mint operator-(mint o) const { return x - o.x < 0 ? x - o.x + P : x - o.x; }
+    mint operator*(mint o) const { return int(u64(x) * o.x % P); }
+    mint operator-() const { return x ? P - x : 0; }
+    void operator+=(mint o) { *this = *this + o; }
+    void operator-=(mint o) { *this = *this - o; }
+    void operator*=(mint o) { *this = *this * o; }
+    mint pow(auto k) const {
+        mint a = x;
+        mint b = 1;
+        for (; k > 0; k /= 2) {
+            if (k & 1)
+                b *= a;
+            a *= a;
+        }
+        return b;
+    }
+};
+void fft(mint f[], int n) {
+    for (int k = 1; k < n; k *= 2)
+        for (int i = 0; i < n; i += k + k)
+            for (int j = 0; j < k; ++j) {
+                mint x = f[i + j];
+                mint y = f[i + j + k];
+                f[i + j] = x + y;
+                f[i + j + k] = x - y;
+            }
+}
+void ift(mint f[], int n) {
+    for (int k = 1; k < n; k *= 2)
+        for (int i = 0; i < n; i += k + k)
+            for (int j = 0; j < k; ++j) {
+                mint x = f[i + j];
+                mint y = f[i + j + k];
+                f[i + j] = x + y;
+                f[i + j + k] = x - y;
+            }
+    mint inv = P - (P - 1) / n;
+    for (int i = 0; i < n; ++i) f[i] *= inv;
+}
+mint a[N];
+mint b[N];
 int main() {
 #ifdef LOCAL
     auto flush = [&]() {};
@@ -49,6 +96,14 @@ int main() {
         ptrO += end - ptr;
     };
 #endif
-    for (auto i = ii(); i > 0; --i) oo(ii() + ii());
+    int n = 1 << ii();
+    for (int i = 0; i < n; ++i) a[i] = ii();
+    for (int i = 0; i < n; ++i) b[i] = ii();
+    fft(a, n);
+    fft(b, n);
+    for (int i = 0; i < n; ++i)
+        a[i] *= b[i];
+    ift(a, n);
+    for (int i = 0; i < n; ++i) oo(a[i].x);
     flush();
 }
