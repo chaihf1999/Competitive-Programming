@@ -1,8 +1,52 @@
 #include <bits/stdc++.h>
-// fast_io
+// lcm_convolution
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
+const int N = 1 << 20;
+const int P = 998244353;
+struct mint {
+    int x;
+    constexpr mint(int x = 0) : x(x) {}
+    mint operator+(mint o) const { return x + o.x < P ? x + o.x : x + o.x - P; }
+    mint operator-(mint o) const { return x - o.x < 0 ? x - o.x + P : x - o.x; }
+    mint operator*(mint o) const { return int(u64(x) * o.x % P); }
+    mint operator-() const { return x ? P - x : 0; }
+    void operator+=(mint o) { *this = *this + o; }
+    void operator-=(mint o) { *this = *this - o; }
+    void operator*=(mint o) { *this = *this * o; }
+    mint pow(auto k) const {
+        mint a = x;
+        mint b = 1;
+        for (; k > 0; k /= 2) {
+            if (k & 1)
+                b *= a;
+            a *= a;
+        }
+        return b;
+    }
+};
+mint mu[N];
+void __attribute((constructor)) init() {
+    std::bitset<N> vec;
+    for (int i = 1; i < N; ++i) mu[i] = 1;
+    for (u64 i = 2; i < N; ++i) {
+        if (!vec[i]) {
+            for (u64 j = i; j < N; j += i) mu[j] = -mu[j], vec.set(j);
+            for (u64 j = i * i; j < N; j += i * i) mu[j] = 0;
+        }
+    }
+}
+void fft(mint f[], int n) {
+    for (int i = n; i >= 1; --i)
+        for (int j = 2; i * j <= n; ++j) f[i * j] += f[i];
+}
+void ift(mint f[], int n) {
+    for (int i = n; i >= 1; --i)
+        for (int j = 2; i * j <= n; ++j) f[i * j] += f[i] * mu[j];
+}
+mint a[N];
+mint b[N];
 int main() {
 #ifdef LOCAL
     auto flush = [&]() {};
@@ -49,6 +93,13 @@ int main() {
         ptrO += end - ptr;
     };
 #endif
-    for (auto i = ii(); i > 0; --i) oo(ii() + ii());
+    int n = ii();
+    for (int i = 1; i <= n; ++i) a[i] = ii();
+    for (int i = 1; i <= n; ++i) b[i] = ii();
+    fft(a, n);
+    fft(b, n);
+    for (int i = 1; i <= n; ++i) a[i] *= b[i];
+    ift(a, n);
+    for (int i = 1; i <= n; ++i) oo(a[i].x);
     flush();
 }
