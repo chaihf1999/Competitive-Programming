@@ -3,31 +3,34 @@
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
-int main() {
 #ifdef LOCAL
-    auto flush = [&]() {};
-    auto ii = [&]() {
+class IO {
+public:
+    inline auto operator()() {
         int x;
         std::cin >> x;
         return x;
-    };
-    auto oo = [&](auto x, char c = 10) {
+    }
+    inline void operator()(auto x, char c = ' ') {
         std::cout << x << c << std::flush;
-    };
+    }
+} io;
 #else
+class IO {
+private:
     char bufI[1 << 19], *ptrI = bufI, *endI = bufI + sizeof(bufI);
     char bufO[1 << 19], *ptrO = bufO, *endO = bufO + sizeof(bufO);
-    fread(bufI, 1, sizeof(bufI), stdin);
-    auto load = [&]() {
+public:
+    inline void load() {
         memcpy(bufI, ptrI, endI - ptrI);
         fread(endI - ptrI + bufI, 1, ptrI - bufI, stdin);
         ptrI = bufI;
     };
-    auto flush = [&]() {
+    inline void flush() {
         fwrite(bufO, 1, ptrO - bufO, stdout);
         ptrO = bufO;
     };
-    auto ii = [&]() {
+    inline auto operator()() {
         if (endI - ptrI < 32) load();
         int x{};
         int n{};
@@ -35,7 +38,7 @@ int main() {
         for (; *ptrI > 47; ++ptrI) x = x * 10 + *ptrI - 48;
         return n ? -x : +x;
     };
-    auto oo = [&](auto x, char c = 10) {
+    inline void operator()(auto x, char c = ' ') {
         if (endO - ptrO < 32) flush();
         if (x < 0) x = -x, *ptrO++ = '-';
         static char buf[21];
@@ -48,7 +51,10 @@ int main() {
         memcpy(ptrO, ptr, end - ptr);
         ptrO += end - ptr;
     };
+    IO() { fread(bufI, 1, sizeof(bufI), stdin); }
+    ~IO() { flush(); }
+} io;
 #endif
-    for (auto i = ii(); i > 0; --i) oo(ii() + ii());
-    flush();
+int main() {
+    for (auto i = io(); i > 0; --i) io(io() + io());
 }
