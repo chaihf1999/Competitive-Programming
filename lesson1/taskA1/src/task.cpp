@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-// fast_io
+// associative_array
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
@@ -7,7 +7,7 @@ using u64 = uint64_t;
 class IO {
 public:
     inline auto operator()() {
-        int x;
+        u64 x;
         std::cin >> x;
         return x;
     }
@@ -32,7 +32,7 @@ public:
     };
     inline auto operator()() {
         if (endI - ptrI < 32) load();
-        int x{};
+        u64 x{};
         int n{};
         for (; *ptrI < 48; ++ptrI) n = *ptrI == 45;
         for (; *ptrI > 47; ++ptrI) x = x * 10 + *ptrI - 48;
@@ -55,6 +55,36 @@ public:
     ~IO() { flush(); }
 } io;
 #endif
+template<typename Key, typename Val, u32 N>
+struct Hash {
+    Key key[N];
+    Val val[N];
+    std::bitset<N> use;
+    const u64 r = std::mt19937_64()();
+    constexpr static u64 shift = 64 - std::__lg(N);
+    Val &operator[](Key i) {
+        u64 hash = i * r >> shift;
+        for (;;) {
+            if (use[hash]) {
+                if (key[hash] == i) return val[hash];
+            } else {
+                use.set(hash);
+                key[hash] = i;
+                return val[hash];
+            }
+            (++hash) &= (N - 1);
+        }
+    }
+};
+Hash<u64, u64, 1 << 20> hash;
 int main() {
-    for (auto i = io(); i > 0; --i) io(io() + io());
+    for (auto i = io(); i > 0; --i) {
+        if (io()) {
+            io(hash[io()]);
+        } else {
+            u64 key = io();
+            u64 val = io();
+            hash[key] = val;
+        }
+    }
 }
