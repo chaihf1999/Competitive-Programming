@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-// fast_io
+// union_find
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
@@ -55,6 +55,29 @@ public:
     ~IO() { flush(); }
 } io;
 #endif
+const int N = 200100;
+int fa[N];
+int sz[N];
+int find(int x) { return fa[x] == x ? x : fa[x] = find(fa[x]); }
+void merge(int u, int v) {
+    u = find(u);
+    v = find(v);
+    if (u == v) return;
+    if (sz[u] < sz[v])
+        fa[u] = v, sz[v] += sz[u];
+    else
+        fa[v] = u, sz[u] += sz[v];
+}
 int main() {
-    for (auto i = io(); i > 0; --i) io(io() + io());
+    int n = io();
+    int m = io();
+    for (int i = 0; i < n; ++i) fa[i] = i;
+    for (int i = 0; i < n; ++i) sz[i] = 1;
+    for (int i = 0; i < m; ++i) {
+        if (io()) {
+            io(int(find(io()) == find(io())));
+        } else {
+            merge(io(), io());
+        }
+    }
 }
