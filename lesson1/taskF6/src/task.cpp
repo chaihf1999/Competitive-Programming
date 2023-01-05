@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-// fast_io
+// point_add_range_sum
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
@@ -55,6 +55,23 @@ public:
     ~IO() { flush(); }
 } io;
 #endif
+const int N = 500100;
+u64 sum[N];
 int main() {
-    for (auto i = io(); i > 0; --i) io(io() + io());
+    int n = io();
+    int m = io();
+    for (int i = 1; i <= n; ++i) sum[i] = sum[i - 1] + io();
+    for (int i = n; i >= 1; --i) sum[i] -= sum[i & (i - 1)];
+    for (int i = 0; i < m; ++i) {
+        if (io()) {
+            u64 ans{};
+            for (int k = io(); k > 0; k -= k & -k) ans -= sum[k];
+            for (int k = io(); k > 0; k -= k & -k) ans += sum[k];
+            io(ans);
+        } else {
+            int k = io() + 1;
+            int x = io();
+            for (; k <= n; k += k & -k) sum[k] += x;
+        }
+    }
 }
