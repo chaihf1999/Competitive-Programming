@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-// fast_io
+// static_range_sum
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
@@ -55,6 +55,27 @@ public:
     ~IO() { flush(); }
 } io;
 #endif
+const int N = 1 << 19;
+int val[N];
+u64 pre[19][N];
+u64 suf[19][N];
 int main() {
-    for (auto i = io(); i > 0; --i) io(io() + io());
+    int n = io();
+    int m = io();
+    for (int i = 0; i < n; ++i) val[i] = io();
+    for (int k = 0; n >> k; ++k) {
+        int mask = (1 << k) - 1;
+        for (int i = 0; i < n; ++i) pre[k][i] = (i & mask) ? pre[k][i - 1] + val[i] : val[i];
+        for (int i = n; i > 0; --i) suf[k][i - 1] = (i & mask) ? suf[k][i] + val[i - 1] : val[i - 1];
+    }
+    for (int i = 0; i < m; ++i) {
+        int l = io();
+        int r = io() - 1;
+        if (l == r) {
+            io(val[l]);
+        } else {
+            int k = std::__lg(r ^ l);
+            io(suf[k][l] + pre[k][r]);
+        }
+    }
 }
