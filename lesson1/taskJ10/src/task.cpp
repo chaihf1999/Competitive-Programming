@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-// fast_io
+// vertex_add_subtree_sum
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
@@ -55,6 +55,44 @@ public:
     ~IO() { flush(); }
 } io;
 #endif
+const int N = 500100;
+int val[N];
+int str[N];
+int end[N];
+u64 sum[N];
+int head[N];
+int next[N];
+void dfs(int u) {
+    static int cnt;
+    str[u] = ++cnt;
+    sum[cnt] = val[u];
+    for (int v = head[u]; v > 0; v = next[v])
+        dfs(v);
+    end[u] = cnt + 1;
+}
 int main() {
-    for (auto i = io(); i > 0; --i) io(io() + io());
+    int n = io();
+    int m = io();
+    for (int i = 0; i < n; ++i) val[i] = io();
+    for (int i = 1; i < n; ++i) {
+        int f = io();
+        next[i] = head[f];
+        head[f] = i;
+    }
+    dfs(0);
+    for (int i = 1; i <= n; ++i) sum[i] += sum[i - 1];
+    for (int i = n; i >= 1; --i) sum[i] -= sum[i & (i - 1)];
+    for (int i = 0; i < m; ++i) {
+        if (io() == 0) {
+            int u = io();
+            int x = io();
+            for (int k = str[u]; k <= n; k += k & -k) sum[k] += x;
+        } else {
+            int u = io();
+            u64 ans = 0;
+            for (int k = str[u] - 1; k > 0; k -= k & -k) ans -= sum[k];
+            for (int k = end[u] - 1; k > 0; k -= k & -k) ans += sum[k];
+            io(ans);
+        }
+    }
 }
