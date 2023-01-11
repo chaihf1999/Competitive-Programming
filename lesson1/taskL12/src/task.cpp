@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
-// fast_io
+// range_kth_smallest
+#define mid ((l + r) >> 1)
 using i64 = int64_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
@@ -55,6 +56,50 @@ public:
     ~IO() { flush(); }
 } io;
 #endif
+const int N = 2e5 + 5;
+const int M = 4e6 + 5;
+struct Node {
+    int L;
+    int R;
+    int cnt;
+} node[M], *ptr = node;
+void insert(int *x, int l, int r, int k) {
+    while (l != r - 1) {
+        auto [L, R, cnt] = node[*x];
+        if (k < mid)
+            *x = new(++ptr) Node{L, R, ++cnt} - node, x = &ptr->L, r = mid;
+        else
+            *x = new(++ptr) Node{L, R, cnt++} - node, x = &ptr->R, l = mid;
+    }
+}
+int query(int x, int y, int l, int r, int k) {
+    while (l != r - 1) {
+        auto [Lx, Rx, _x] = node[x];
+        auto [Ly, Ry, _y] = node[y];
+        if (int cnt = _y - _x; cnt <= k)
+            x = Rx, y = Ry, l = mid, k -= cnt;
+        else
+            x = Lx, y = Ly, r = mid;
+    }
+    return l;
+}
+int val[N];
+int vec[N];
+int tree[N];
 int main() {
-    for (auto i = io(); i > 0; --i) io(io() + io());
+    int n = io();
+    int m = io();
+    for (int i = 0; i < n; ++i) val[i] = vec[i] = io();
+    std::sort(vec, vec + n);
+    for (int i = 0; i < n; ++i) val[i] = std::lower_bound(vec, vec + n, val[i]) - vec;
+    for (int i = 0; i < n; ++i) {
+        tree[i + 1] = tree[i];
+        insert(tree + i + 1, 0, n, val[i]);
+    }
+    for (int i = 0; i < m; ++i) {
+        int l = io();
+        int r = io();
+        int x = query(tree[l], tree[r], 0, n, io());
+        io(vec[x]);
+    }
 }
